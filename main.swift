@@ -18,6 +18,10 @@ final class Bot: NSObject, NSApplicationDelegate, WKScriptMessageHandler, NSWind
     var web: WKWebView!
     var running: Process?
     var refreshTimer: Timer?
+    var dragMonitor: Any?
+    var dragStartMouse = NSPoint.zero
+    var dragStartOrigin = NSPoint.zero
+    var expandShift: CGFloat = 0
 
     func applicationDidFinishLaunching(_ note: Notification) {
         let config = WKWebViewConfiguration()
@@ -44,10 +48,9 @@ final class Bot: NSObject, NSApplicationDelegate, WKScriptMessageHandler, NSWind
         window.hasShadow = true
         window.level = .floating
         window.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
-        window.isMovableByWindowBackground = true
         window.contentView = blur
         window.delegate = self
-        placeTopRight()
+        restorePosition()
         window.orderFrontRegardless()
 
         let res = Bundle.main.resourceURL!
@@ -63,12 +66,64 @@ final class Bot: NSObject, NSApplicationDelegate, WKScriptMessageHandler, NSWind
     func placeTopRight() {
         guard let screen = NSScreen.main else { return }
         let f = screen.visibleFrame
-        window.setFrameOrigin(NSPoint(x: f.maxX - bannerSize.width - 16, y: f.maxY - bannerSize.height - 12))
+        window.setFrameOrigin(NSPoint(x: f.maxX - bannerSize.width - 16, y: f.maxY - window.frame.height - 12))
+    }
+
+    // ---------- moving the banner ----------
+
+    // Put the banner back where it was last dragged to, if that spot is still on a screen.
+    func restorePosition() {
+        let d = UserDefaults.standard
+        if d.object(forKey: "bannerX") != nil {
+            let origin = NSPoint(x: d.double(forKey: "bannerX"), y: d.double(forKey: "bannerY"))
+            let rect = NSRect(origin: origin, size: bannerSize)
+            if NSScreen.screens.contains(where: { $0.visibleFrame.intersects(rect) }) {
+                window.setFrameOrigin(origin)
+                return
+            }
+        }
+        placeTopRight()
+    }
+
+    func savePosition() {
+        let top = window.frame.maxY + expandShift   // remember the collapsed banner's spot
+        UserDefaults.standard.set(window.frame.minX, forKey: "bannerX")
+        UserDefaults.standard.set(top - bannerSize.height, forKey: "bannerY")
+    }
+
+    // Called when a drag starts on the banner (not on a button). The web view has already taken
+    // the mouse-down, so follow the pointer with a local event monitor until the button is released.
+    func startDrag() {
+        guard dragMonitor == nil, NSEvent.pressedMouseButtons & 1 != 0 else { return }
+        dragStartMouse = NSEvent.mouseLocation
+        dragStartOrigin = window.frame.origin
+        dragMonitor = NSEvent.addLocalMonitorForEvents(matching: [.leftMouseDragged, .leftMouseUp]) { [weak self] event in
+            guard let self else { return event }
+            let m = NSEvent.mouseLocation
+            self.window.setFrameOrigin(NSPoint(x: self.dragStartOrigin.x + m.x - self.dragStartMouse.x,
+                                               y: self.dragStartOrigin.y + m.y - self.dragStartMouse.y))
+            if event.type == .leftMouseUp {
+                if let mon = self.dragMonitor { NSEvent.removeMonitor(mon) }
+                self.dragMonitor = nil
+                self.keepOnScreen()
+                self.savePosition()
+            }
+            return event
+        }
+    }
+
+    // Nudge the banner fully back onto the screen it was dropped on.
+    func keepOnScreen() {
+        let f = window.frame
+        let screen = NSScreen.screens.first(where: { $0.frame.contains(NSPoint(x: f.midX, y: f.midY)) }) ?? NSScreen.main
+        guard let v = screen?.visibleFrame else { return }
+        let x = min(max(f.minX, v.minX + 4), v.maxX - f.width - 4)
+        let y = min(max(f.minY, v.minY + 4), v.maxY - f.height - 4)
+        window.setFrameOrigin(NSPoint(x: x, y: y))
     }
 
     // Clicking the Dock icon brings the banner back after it was hidden.
     func applicationShouldHandleReopen(_ app: NSApplication, hasVisibleWindows: Bool) -> Bool {
-        placeTopRight()
         window.orderFrontRegardless()
         web.evaluateJavaScript("window.refresh && window.refresh()")
         return true
@@ -85,6 +140,11 @@ final class Bot: NSObject, NSApplicationDelegate, WKScriptMessageHandler, NSWind
             NSWorkspace.shared.open(home.appendingPathComponent("2026"))
         case "quit":
             NSApp.terminate(nil)
+        case "dragStart":
+            startDrag()
+        case "home":
+            placeTopRight()
+            savePosition()
         case "expand":
             setExpanded(body["open"] as? Bool ?? false)
         case "search":
@@ -108,10 +168,19 @@ final class Bot: NSObject, NSApplicationDelegate, WKScriptMessageHandler, NSWind
     }
 
     // Search grows the banner downward (top edge stays put) and takes keyboard focus.
+    // Near the bottom of the screen it shifts up to fit, and shifts back down when closed.
     func setExpanded(_ open: Bool) {
         let height: CGFloat = open ? 440 : bannerSize.height
         var frame = window.frame
-        frame.origin.y = frame.maxY - height
+        if open {
+            frame.origin.y = frame.maxY - height
+            let bottom = (window.screen ?? NSScreen.main)?.visibleFrame.minY ?? 0
+            expandShift = max(0, bottom + 4 - frame.origin.y)
+            frame.origin.y += expandShift
+        } else {
+            frame.origin.y = frame.maxY - expandShift - height
+            expandShift = 0
+        }
         frame.size.height = height
         window.setFrame(frame, display: true, animate: true)
         if open {

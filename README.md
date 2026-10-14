@@ -34,6 +34,7 @@ A notification-sized Mac assistant that keeps your design-school files tidy. Pre
 | **Organise** | Sort everything that's waiting |
 | **Option-click Organise** | Preview where files *would* go without moving anything |
 | **× (top-left)** | Quit Mr. Box — reopen it from Spotlight |
+| **Drag** | Grab Mr. Box anywhere (not on a button) to move him; he remembers the spot. Double-click him to send him back to the top-right corner |
 | **Click the status after a run** | Open the organised folders in Finder |
 | **🔍 or ⌘F** | Search everything — file names and words inside documents. ↑↓ to pick, ↩ to open, ⌘↩ to show in Finder, Esc to close |
 
