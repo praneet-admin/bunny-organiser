@@ -4,7 +4,7 @@
 Classification is done by the `claude` CLI. Run with --dry-run to see the plan without moving.
 Every move is appended to _move_log.tsv (undo with _undo_moves.sh).
 """
-import calendar, datetime, json, os, shutil, subprocess, sys, time
+import calendar, datetime, json, os, shutil, subprocess, sys, time, unicodedata
 
 H = os.path.expanduser('~')
 ROOT = os.path.join(H, '2026')
@@ -21,6 +21,11 @@ SKEL = (['01_Research', '02_Inspiration']
         + ['04_Working_Files/V0%d' % i for i in range(1, 6)]
         + ['05_Exports/' + x for x in 'JPG PNG PDF SVG'.split()]
         + ['06_Mockups', '07_Final', '99_Archive'])
+
+
+def same(path):
+    """Comparable form of a path: Unicode-normalised, odd spaces turned into plain ones."""
+    return unicodedata.normalize('NFC', path).replace('\u202f', ' ').replace('\u00a0', ' ').strip()
 
 
 def existing_projects():
@@ -105,13 +110,14 @@ def main():
         sys.exit(1)
     projects = existing_projects()
     plan = classify(items, projects)
-    valid = {i[0] for i in items}
+    # Claude may echo names back with plain spaces where macOS used special ones (e.g. screenshot times).
+    valid = {same(i[0]): i[0] for i in items}
     month = datetime.date.today().month
     new_month_dir = os.path.join(ROOT, '%02d_%s' % (month, calendar.month_name[month]))
     log = open(os.path.join(ROOT, '_move_log.tsv'), 'a')
     for p in plan:
-        rel, proj, dest = p.get('path'), p.get('project', '-'), p.get('dest', 'UNSURE')
-        if rel not in valid:
+        rel, proj, dest = valid.get(same(p.get('path') or '')), p.get('project', '-'), p.get('dest', 'UNSURE')
+        if not rel:
             continue
         src = os.path.join(H, rel)
         if proj == '-' or not (dest in SKEL):

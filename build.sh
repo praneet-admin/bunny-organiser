@@ -2,7 +2,7 @@
 # Builds "Mr Box.app" into ~/Applications.
 set -euo pipefail
 cd "$(dirname "$0")"
-APP="$HOME/Applications/Mr Box.app"
+APP="${MRBOX_APP:-$HOME/Applications/Mr Box.app}"   # set MRBOX_APP to build elsewhere, e.g. for a release
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 
