@@ -5,29 +5,33 @@
 <title>Mr. Box</title>
 <style>
   :root {
-    --brand-900: #23155c; --brand-700: #5330d6; --brand-600: #6a48f2; --brand-500: #8466ff;
+    --brand-900: #23155c; --brand-500: #8466ff;
     --accent-600: #f2b705; --accent-500: #ffd233;
+    --blue: #3a78e0;
     --mint-600: #12a877; --danger-600: #c9245a;
     --ink-900: #1b1638; --ink-500: #5f5885;
+    --field: rgba(255, 255, 255, .75); --hover: rgba(58, 120, 224, .12); --line: rgba(60, 50, 110, .12);
     --font: "Nunito", ui-rounded, "Avenir Next Rounded", "Avenir Next", system-ui, sans-serif;
   }
   @media (prefers-color-scheme: dark) {
-    :root { --ink-900: #f4f1ff; --ink-500: #b9b2dc; --mint-600: #2fe3a5; --danger-600: #ff6f9b; }
+    :root {
+      --ink-900: #f4f1ff; --ink-500: #b9b2dc; --mint-600: #2fe3a5; --danger-600: #ff6f9b;
+      --field: rgba(255, 255, 255, .08); --hover: rgba(120, 160, 255, .18); --line: rgba(255, 255, 255, .1);
+    }
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; height: 100%; background: transparent; overflow: hidden; }
   body {
     font-family: var(--font); color: var(--ink-900);
-    display: flex; align-items: center; gap: 10px; padding: 0 12px 0 8px;
+    display: flex; flex-direction: column;
     user-select: none; -webkit-user-select: none; cursor: default;
   }
 
-  /* ---------- Mr. Box ---------- */
+  /* ---------- the 80px banner row ---------- */
+  .bar { position: relative; flex: none; height: 80px; display: flex; align-items: center; gap: 10px; padding: 0 12px 0 8px; }
+
   .mascot-wrap { position: relative; flex: none; width: 60px; height: 60px; }
-  .mascot {
-    width: 100%; height: 100%; -webkit-user-drag: none;
-    transform-origin: 50% 90%; animation: breathe 3s ease-in-out infinite;
-  }
+  .mascot { width: 100%; height: 100%; -webkit-user-drag: none; transform-origin: 50% 90%; animation: breathe 3s ease-in-out infinite; }
   @keyframes breathe { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
   body.working .mascot { animation: hop .5s cubic-bezier(.3,0,.4,1) infinite; }
   @keyframes hop {
@@ -37,9 +41,11 @@
   }
   body.happy .mascot { animation: cheer .8s ease-out 2; }
   @keyframes cheer { 0%,100% { transform: none; } 35% { transform: translateY(-9px) rotate(-10deg); } 70% { transform: translateY(-9px) rotate(10deg); } }
+  body.searching .mascot { animation: peek 1.6s ease-in-out infinite; }
+  @keyframes peek { 0%,100% { transform: rotate(0); } 30% { transform: rotate(-6deg); } 60% { transform: rotate(5deg); } }
   .badge {
     position: absolute; top: 0; right: -2px; min-width: 19px; height: 19px; padding: 0 5px;
-    border-radius: 999px; background: #3a78e0; color: #fff;
+    border-radius: 999px; background: var(--blue); color: #fff;
     font: 900 11px/19px var(--font); text-align: center;
     box-shadow: 0 0 0 2px rgba(255,255,255,.85); display: none;
   }
@@ -47,19 +53,22 @@
   .badge.show { display: block; animation: pop .3s ease-out; }
   @keyframes pop { from { transform: scale(.4); } 70% { transform: scale(1.15); } to { transform: none; } }
 
-  /* ---------- text ---------- */
   .text { flex: 1; min-width: 0; line-height: 1.25; }
   .title { font-weight: 900; font-size: 13.5px; letter-spacing: .01em; }
-  .status {
-    font-weight: 700; font-size: 12.5px; color: var(--ink-500); margin-top: 2px;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  }
+  .status { font-weight: 700; font-size: 12.5px; color: var(--ink-500); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .status.ok { color: var(--mint-600); }
   .status.err { color: var(--danger-600); }
   .text.clickable { cursor: pointer; }
   .text.clickable:hover .status { text-decoration: underline; }
 
-  /* ---------- button ---------- */
+  .icon-btn {
+    flex: none; width: 34px; height: 34px; border-radius: 11px; border: none; cursor: pointer;
+    display: grid; place-items: center; background: var(--field); color: var(--ink-900);
+    transition: background .15s, transform .08s;
+  }
+  .icon-btn:hover { background: var(--hover); }
+  .icon-btn:active { transform: scale(.94); }
+  .icon-btn svg { width: 17px; height: 17px; }
   .go {
     flex: none; padding: 8px 14px; font: 900 13.5px var(--font); color: var(--brand-900);
     background: var(--accent-500); border: none; border-radius: 12px; cursor: pointer;
@@ -68,34 +77,73 @@
   .go:hover { filter: brightness(1.05); }
   .go:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--accent-600); }
   .go:disabled { cursor: progress; filter: saturate(.35); transform: translateY(2px); box-shadow: 0 1px 0 var(--accent-600); }
-  .go:focus-visible { outline: 2px solid var(--brand-500); outline-offset: 2px; }
+  button:focus-visible, input:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
 
-  /* ---------- close (appears on hover, like a notification) ---------- */
   .close {
     position: absolute; top: 4px; left: 4px; width: 18px; height: 18px; border-radius: 50%;
     border: none; padding: 0; cursor: pointer; opacity: 0; transition: opacity .15s;
     background: rgba(120, 110, 160, .55); color: #fff; font: 700 12px/18px system-ui; text-align: center;
   }
-  body:hover .close { opacity: 1; }
+  .bar:hover .close { opacity: 1; }
+
+  /* ---------- search mode ---------- */
+  .search { flex: 1; min-width: 0; display: none; }
+  .search input {
+    width: 100%; height: 38px; padding: 0 12px; border-radius: 12px; border: 1.5px solid var(--line);
+    background: var(--field); color: var(--ink-900); font: 700 14px var(--font); outline: none;
+    -webkit-user-select: text; user-select: text;
+  }
+  .search input:focus { border-color: var(--blue); }
+  .search input::placeholder { color: var(--ink-500); font-weight: 600; }
+  body.searching .text, body.searching .go, body.searching #searchBtn { display: none; }
+  body.searching .search { display: block; }
+  #endSearch { display: none; }
+  body.searching #endSearch { display: grid; }
+
+  .results { flex: 1; min-height: 0; overflow-y: auto; padding: 0 8px 4px; display: none; border-top: 1px solid var(--line); }
+  body.searching .results { display: block; }
+  .hint { flex: none; display: none; padding: 6px 14px 8px; font-size: 11px; font-weight: 700; color: var(--ink-500); border-top: 1px solid var(--line); }
+  body.searching .hint { display: flex; justify-content: space-between; }
+
+  .group { padding: 10px 8px 4px; font-size: 10.5px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-500); }
+  .hit { display: flex; align-items: center; gap: 10px; padding: 7px 8px; border-radius: 10px; cursor: pointer; }
+  .hit.sel, .hit:hover { background: var(--hover); }
+  .hit img { width: 28px; height: 28px; flex: none; }
+  .hit .meta { min-width: 0; flex: 1; }
+  .hit .name { font-weight: 800; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hit .where { font-size: 11.5px; color: var(--ink-500); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
+  .empty { padding: 22px 10px; text-align: center; font-size: 13px; font-weight: 700; color: var(--ink-500); }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 </style>
 </head>
 <body>
-  <button class="close" id="close" title="Hide (reopen from the Dock)">×</button>
-  <div class="mascot-wrap">
-    <img class="mascot" src="mrbox.png" alt="Mr. Box">
-    <span class="badge" id="badge"></span>
+  <div class="bar">
+    <button class="close" id="close" title="Hide (reopen from the Dock)">×</button>
+    <div class="mascot-wrap">
+      <img class="mascot" src="mrbox.png" alt="Mr. Box">
+      <span class="badge" id="badge"></span>
+    </div>
+    <div class="text" id="text">
+      <div class="title">Mr. Box</div>
+      <div class="status" id="status">Peeking at your folders…</div>
+    </div>
+    <div class="search"><input id="q" type="text" placeholder="Search all your files…" spellcheck="false" autocomplete="off"></div>
+    <button class="icon-btn" id="searchBtn" title="Search (⌘F)" aria-label="Search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 20 20"/></svg>
+    </button>
+    <button class="icon-btn" id="endSearch" title="Close search (Esc)" aria-label="Close search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+    <button class="go" id="go" title="Option-click to preview without moving">Organise</button>
   </div>
-  <div class="text" id="text">
-    <div class="title">Mr. Box</div>
-    <div class="status" id="status">Peeking at your folders…</div>
-  </div>
-  <button class="go" id="go" title="Option-click to preview without moving">Organise</button>
+  <div class="results" id="results"></div>
+  <div class="hint"><span>↩ open · ⌘↩ show in Finder</span><span id="count"></span></div>
 
 <script>
   const $ = id => document.getElementById(id);
   const bridge = msg => window.webkit?.messageHandlers?.bot?.postMessage(msg);
   const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
+  const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   let waiting = 0, moved = 0, preview = false, lastError = '', projects = new Set(), clickOpens = false;
 
   function status(text, kind = '') {
@@ -107,6 +155,8 @@
     $('badge').classList.toggle('show', n > 0);
   }
   function setClickOpens(on) { clickOpens = on; $('text').classList.toggle('clickable', on); }
+
+  /* ================= organise ================= */
 
   // Called by the app for each line the organiser prints.
   window.onLine = line => {
@@ -172,6 +222,79 @@
     waiting = 0; lastError = '';
     bridge({ action: 'list' });
   };
+
+  /* ================= search ================= */
+
+  let hits = [], sel = 0, searchId = 0, debounce;
+  const PROMPT = '<div class="empty">Type a file name, a project, or words inside a document.</div>';
+
+  function openSearch() {
+    if (document.body.classList.contains('working')) return;
+    document.body.classList.add('searching');
+    bridge({ action: 'expand', open: true });
+    $('results').innerHTML = PROMPT;
+    $('count').textContent = '';
+    setTimeout(() => $('q').focus(), 30);
+  }
+  function closeSearch() {
+    document.body.classList.remove('searching');
+    $('q').value = ''; hits = [];
+    bridge({ action: 'expand', open: false });
+  }
+
+  $('q').addEventListener('input', () => {
+    clearTimeout(debounce);
+    const q = $('q').value.trim();
+    if (q.length < 2) { $('results').innerHTML = PROMPT; $('count').textContent = ''; hits = []; return; }
+    debounce = setTimeout(() => bridge({ action: 'search', query: q, id: ++searchId }), 180);
+  });
+
+  // Called by the app with search results.
+  window.onResults = (id, results) => {
+    if (id !== searchId) return;           // a newer search is on its way
+    hits = results; sel = 0;
+    $('count').textContent = results.length ? plural(results.length, 'result') : '';
+    if (!results.length) {
+      $('results').innerHTML = `<div class="empty">No files match “${esc($('q').value.trim())}”.</div>`;
+      return;
+    }
+    let html = '', group = '';
+    results.forEach((r, i) => {
+      if (r.group !== group) { group = r.group; html += `<div class="group">${esc(group)}</div>`; }
+      html += `<div class="hit" data-i="${i}">
+        <img src="${r.icon || ''}" alt="">
+        <div class="meta"><div class="name">${esc(r.name)}</div><div class="where">${esc(r.where)}</div></div>
+      </div>`;
+    });
+    $('results').innerHTML = html;
+    highlight();
+  };
+
+  function highlight() {
+    document.querySelectorAll('.hit').forEach(el => el.classList.toggle('sel', +el.dataset.i === sel));
+    document.querySelector('.hit.sel')?.scrollIntoView({ block: 'nearest' });
+  }
+  function act(i, reveal) {
+    const r = hits[i]; if (!r) return;
+    bridge({ action: reveal ? 'reveal' : 'openFile', path: r.path });
+  }
+
+  $('results').addEventListener('click', e => {
+    const el = e.target.closest('.hit'); if (!el) return;
+    act(+el.dataset.i, e.metaKey);
+  });
+  $('q').addEventListener('keydown', e => {
+    if (e.key === 'ArrowDown') { e.preventDefault(); sel = Math.min(sel + 1, hits.length - 1); highlight(); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); sel = Math.max(sel - 1, 0); highlight(); }
+    else if (e.key === 'Enter') { e.preventDefault(); act(sel, e.metaKey); }
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && document.body.classList.contains('searching')) closeSearch();
+    else if (e.key === 'f' && e.metaKey) { e.preventDefault(); openSearch(); }
+  });
+  $('searchBtn').addEventListener('click', openSearch);
+  $('endSearch').addEventListener('click', closeSearch);
+
   if (window.webkit?.messageHandlers?.bot) refresh(); else status('Open me from the app');
 </script>
 </body>

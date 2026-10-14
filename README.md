@@ -34,6 +34,7 @@ A notification-sized Mac assistant that keeps your design-school files tidy. Pre
 | **Organise** | Sort everything that's waiting |
 | **Option-click Organise** | Preview where files *would* go without moving anything |
 | **Click the status after a run** | Open the organised folders in Finder |
+| **🔍 or ⌘F** | Search everything — file names and words inside documents. ↑↓ to pick, ↩ to open, ⌘↩ to show in Finder, Esc to close |
 
 The first time you press Organise, macOS asks for access to Downloads, Desktop and Documents. Click **Allow**.
 
@@ -43,6 +44,7 @@ From the terminal:
 python3 organize.py --list      # what's waiting
 python3 organize.py --dry-run   # plan only
 python3 organize.py             # organise
+"$HOME/Applications/Mr Box.app/Contents/MacOS/MrBox" --search "zo hotel"   # test search
 ```
 
 ## Build
@@ -64,7 +66,7 @@ mkdir -p ~/2026 && ln -sf "$PWD/organize.py" ~/2026/_organize_new.py
 
 | File | What it is |
 |---|---|
-| `main.swift` | Native window (WKWebView) that runs the organiser and streams its output |
+| `main.swift` | Floating banner (WKWebView) that runs the organiser and does Spotlight search |
 | `index.html` | The banner UI |
 | `organize.py` | Finds new files, asks `claude -p` to classify them, moves them |
 | `undo_moves.sh` | Reverses every logged move |
