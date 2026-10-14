@@ -1,10 +1,10 @@
 # Bunny Organiser 🐰🥕
 
-A tiny Mac app that keeps your design-school files tidy. Press **Organise!** and the Gengo bunny hops through
+A notification-sized Mac app that keeps your design-school files tidy. Press **Organise!** and the Gengo bunny hops through
 `~/Downloads`, `~/Desktop` and `~/Documents`, works out which project each new file belongs to (using the
 `claude` CLI), and files it into a dated project template.
 
-<img src="docs/screenshot.png" alt="Bunny Organiser window" width="300">
+<img src="docs/screenshot.png" alt="Bunny Organiser banner" width="450">
 
 ## The folder template
 
@@ -32,8 +32,8 @@ A tiny Mac app that keeps your design-school files tidy. Press **Organise!** and
 | | |
 |---|---|
 | **Organise!** | Sort everything that's waiting |
-| **Just preview** | Show where files *would* go without moving anything |
-| **Open 2026 folder** | Open the organised folders in Finder |
+| **Option-click Organise** | Preview where files *would* go without moving anything |
+| **Click the status after a run** | Open the organised folders in Finder |
 
 The first time you press Organise, macOS asks for access to Downloads, Desktop and Documents. Click **Allow**.
 

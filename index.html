@@ -6,224 +6,173 @@
 <style>
   :root {
     --brand-900: #23155c; --brand-700: #5330d6; --brand-600: #6a48f2; --brand-500: #8466ff;
-    --brand-100: #e6e0ff; --brand-050: #f1edff;
-    --accent-600: #f2b705; --accent-500: #ffd233; --accent-100: #fff6c7;
-    --mint-500: #2fe3a5; --mint-100: #d9fbef;
-    --danger-600: #c9245a; --danger-100: #ffe1ec;
-    --ink-900: #1b1638; --ink-700: #3f3866; --ink-500: #6f6894;
-    --bg: #f6f3ff; --card: #ffffff; --line: #ddd5fb;
+    --accent-600: #f2b705; --accent-500: #ffd233;
+    --mint-600: #12a877; --danger-600: #c9245a;
+    --ink-900: #1b1638; --ink-500: #5f5885;
     --font: "Nunito", ui-rounded, "Avenir Next Rounded", "Avenir Next", system-ui, sans-serif;
   }
   @media (prefers-color-scheme: dark) {
-    :root {
-      --ink-900: #f1edff; --ink-700: #d6cff5; --ink-500: #a69fcc;
-      --bg: #17122e; --card: #221a45; --line: #3a2f6b; --brand-050: #2a2055; --brand-100: #352a6b;
-      --mint-100: #163d33; --danger-100: #4a1a2c; --accent-100: #4a3c0d;
-    }
+    :root { --ink-900: #f4f1ff; --ink-500: #b9b2dc; --mint-600: #2fe3a5; --danger-600: #ff6f9b; }
   }
   * { box-sizing: border-box; }
-  html, body { margin: 0; height: 100%; }
+  html, body { margin: 0; height: 100%; background: transparent; overflow: hidden; }
   body {
-    font-family: var(--font); color: var(--ink-900); background: var(--bg);
-    display: flex; flex-direction: column; align-items: center;
-    padding: 18px 20px 20px; user-select: none; -webkit-user-select: none; overflow: hidden;
+    font-family: var(--font); color: var(--ink-900);
+    display: flex; align-items: center; gap: 10px; padding: 0 12px 0 8px;
+    user-select: none; -webkit-user-select: none; cursor: default;
   }
 
-  /* ---------- the bunny ---------- */
-  .stage { position: relative; width: 210px; height: 210px; margin-top: 4px; }
-  .shadow {
-    position: absolute; left: 50%; bottom: 6px; width: 120px; height: 16px; margin-left: -60px;
-    border-radius: 50%; background: rgba(35, 21, 92, .16); animation: shadow 3s ease-in-out infinite;
-  }
+  /* ---------- bunny ---------- */
+  .bunny-wrap { position: relative; flex: none; width: 60px; height: 60px; }
   .bunny {
-    position: absolute; inset: 0; width: 100%; height: 100%;
+    width: 100%; height: 100%; -webkit-user-drag: none;
     transform-origin: 50% 90%; animation: breathe 3s ease-in-out infinite;
-    cursor: pointer; -webkit-user-drag: none;
   }
-  @keyframes breathe { 0%,100% { transform: translateY(0) scale(1, 1); } 50% { transform: translateY(-5px) scale(1.01, .99); } }
-  @keyframes shadow { 0%,100% { transform: scaleX(1); opacity: 1; } 50% { transform: scaleX(.88); opacity: .75; } }
-
-  body.working .bunny { animation: hop .55s cubic-bezier(.3,.0,.4,1) infinite; }
-  body.working .shadow { animation: hopShadow .55s cubic-bezier(.3,.0,.4,1) infinite; }
+  @keyframes breathe { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+  body.working .bunny { animation: hop .5s cubic-bezier(.3,0,.4,1) infinite; }
   @keyframes hop {
-    0%   { transform: translateY(0) scale(1.06, .92); }
-    35%  { transform: translateY(-26px) scale(.96, 1.05) rotate(-3deg); }
-    65%  { transform: translateY(-26px) scale(.96, 1.05) rotate(3deg); }
-    100% { transform: translateY(0) scale(1.06, .92); }
+    0%,100% { transform: translateY(0) scale(1.05, .94); }
+    40%     { transform: translateY(-7px) scale(.97, 1.04) rotate(-4deg); }
+    65%     { transform: translateY(-7px) scale(.97, 1.04) rotate(4deg); }
   }
-  @keyframes hopShadow { 0%,100% { transform: scaleX(1); } 50% { transform: scaleX(.6); opacity: .5; } }
+  body.happy .bunny { animation: cheer .8s ease-out 2; }
+  @keyframes cheer { 0%,100% { transform: none; } 35% { transform: translateY(-9px) rotate(-10deg); } 70% { transform: translateY(-9px) rotate(10deg); } }
+  .badge {
+    position: absolute; top: 0; right: -2px; min-width: 19px; height: 19px; padding: 0 5px;
+    border-radius: 999px; background: var(--brand-600); color: #fff;
+    font: 900 11px/19px var(--font); text-align: center;
+    box-shadow: 0 0 0 2px rgba(255,255,255,.85); display: none;
+  }
+  @media (prefers-color-scheme: dark) { .badge { box-shadow: 0 0 0 2px rgba(30,24,60,.9); } }
+  .badge.show { display: block; animation: pop .3s ease-out; }
+  @keyframes pop { from { transform: scale(.4); } 70% { transform: scale(1.15); } to { transform: none; } }
 
-  body.happy .bunny { animation: cheer .9s ease-out 2; }
-  @keyframes cheer {
-    0% { transform: translateY(0) rotate(0); } 30% { transform: translateY(-34px) rotate(-8deg); }
-    60% { transform: translateY(-34px) rotate(8deg); } 100% { transform: translateY(0) rotate(0); }
+  /* ---------- text ---------- */
+  .text { flex: 1; min-width: 0; line-height: 1.25; }
+  .title { font-weight: 900; font-size: 13.5px; letter-spacing: .01em; }
+  .status {
+    font-weight: 700; font-size: 12.5px; color: var(--ink-500); margin-top: 2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
-  .bunny.wiggle { animation: wiggle .5s ease-in-out; }
-  @keyframes wiggle { 0%,100% { transform: rotate(0); } 25% { transform: rotate(-6deg); } 75% { transform: rotate(6deg); } }
+  .status.ok { color: var(--mint-600); }
+  .status.err { color: var(--danger-600); }
+  .text.clickable { cursor: pointer; }
+  .text.clickable:hover .status { text-decoration: underline; }
 
-  .bubble {
-    position: relative; max-width: 330px; margin-top: 6px; padding: 10px 16px;
-    background: var(--card); border: 2px solid var(--line); border-radius: 18px;
-    font-weight: 700; font-size: 15px; text-align: center; color: var(--ink-700);
-    box-shadow: 0 6px 18px rgba(35, 21, 92, .08);
-  }
-  .bubble::before {
-    content: ""; position: absolute; top: -9px; left: 50%; margin-left: -8px; width: 14px; height: 14px;
-    background: var(--card); border-left: 2px solid var(--line); border-top: 2px solid var(--line); transform: rotate(45deg);
-  }
-
-  /* ---------- controls ---------- */
+  /* ---------- button ---------- */
   .go {
-    margin-top: 16px; width: 100%; max-width: 330px; padding: 15px 20px;
-    font: 900 19px var(--font); letter-spacing: .02em; color: var(--brand-900);
-    background: var(--accent-500); border: none; border-radius: 18px; cursor: pointer;
-    box-shadow: 0 5px 0 var(--accent-600); transition: transform .08s, box-shadow .08s, filter .15s;
+    flex: none; padding: 8px 14px; font: 900 13.5px var(--font); color: var(--brand-900);
+    background: var(--accent-500); border: none; border-radius: 12px; cursor: pointer;
+    box-shadow: 0 3px 0 var(--accent-600); transition: transform .08s, box-shadow .08s, filter .15s;
   }
-  .go:hover { filter: brightness(1.04); }
-  .go:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--accent-600); }
-  .go:disabled { cursor: progress; filter: saturate(.4); transform: translateY(4px); box-shadow: 0 1px 0 var(--accent-600); }
-  .go:focus-visible { outline: 3px solid var(--brand-500); outline-offset: 3px; }
+  .go:hover { filter: brightness(1.05); }
+  .go:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--accent-600); }
+  .go:disabled { cursor: progress; filter: saturate(.35); transform: translateY(2px); box-shadow: 0 1px 0 var(--accent-600); }
+  .go:focus-visible { outline: 2px solid var(--brand-500); outline-offset: 2px; }
 
-  .row { display: flex; gap: 10px; align-items: center; justify-content: space-between; width: 100%; max-width: 330px; margin-top: 12px; }
-  .toggle { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: var(--ink-500); cursor: pointer; }
-  .toggle input { width: 16px; height: 16px; accent-color: var(--brand-600); }
-  .link {
-    font: 700 14px var(--font); color: var(--brand-600); background: none; border: none; cursor: pointer; padding: 4px 2px;
+  /* ---------- close (appears on hover, like a notification) ---------- */
+  .close {
+    position: absolute; top: 4px; left: 4px; width: 18px; height: 18px; border-radius: 50%;
+    border: none; padding: 0; cursor: pointer; opacity: 0; transition: opacity .15s;
+    background: rgba(120, 110, 160, .55); color: #fff; font: 700 12px/18px system-ui; text-align: center;
   }
-  @media (prefers-color-scheme: dark) { .link { color: var(--brand-500); } }
-  .link:hover { text-decoration: underline; }
-
-  /* ---------- results ---------- */
-  .results {
-    flex: 1; width: 100%; max-width: 330px; margin-top: 14px; overflow-y: auto;
-    display: flex; flex-direction: column; gap: 8px; padding-bottom: 4px;
-  }
-  .item {
-    background: var(--card); border: 1.5px solid var(--line); border-radius: 14px; padding: 9px 12px;
-    animation: pop .25s ease-out both;
-  }
-  @keyframes pop { from { opacity: 0; transform: translateY(6px) scale(.98); } to { opacity: 1; transform: none; } }
-  .file { font-weight: 800; font-size: 13.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .dest { font-size: 12.5px; color: var(--ink-500); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .tag {
-    display: inline-block; font-size: 11px; font-weight: 800; padding: 1px 8px; border-radius: 999px; margin-right: 6px;
-    background: var(--brand-050); color: var(--brand-700);
-  }
-  @media (prefers-color-scheme: dark) { .tag { color: var(--brand-100); background: var(--brand-700); } }
-  .tag.review { background: var(--accent-100); color: #8a6400; }
-  .tag.personal { background: var(--mint-100); color: #127a57; }
-  .tag.err { background: var(--danger-100); color: var(--danger-600); }
-  .empty { text-align: center; color: var(--ink-500); font-size: 13.5px; margin-top: 8px; }
+  body:hover .close { opacity: 1; }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 </style>
 </head>
 <body>
-  <div class="stage">
-    <div class="shadow"></div>
-    <img class="bunny" id="bunny" src="mascot.png" alt="Gengo bunny">
+  <button class="close" id="close" title="Hide (reopen from the Dock)">×</button>
+  <div class="bunny-wrap">
+    <img class="bunny" src="mascot.png" alt="Gengo bunny">
+    <span class="badge" id="badge"></span>
   </div>
-  <div class="bubble" id="say">Hi! Let me peek at your folders…</div>
-
-  <button class="go" id="go">Organise!</button>
-  <div class="row">
-    <label class="toggle"><input type="checkbox" id="preview"> Just preview</label>
-    <button class="link" id="open">Open 2026 folder ↗</button>
+  <div class="text" id="text">
+    <div class="title">Bunny Organiser</div>
+    <div class="status" id="status">Peeking at your folders…</div>
   </div>
-
-  <div class="results" id="results"></div>
+  <button class="go" id="go" title="Option-click to preview without moving">Organise</button>
 
 <script>
   const $ = id => document.getElementById(id);
-  const bridge = (msg) => window.webkit?.messageHandlers?.bot?.postMessage(msg);
-  let waiting = [], moved = 0, mode = 'idle', errorText = '';
-
-  const say = t => { $('say').textContent = t; };
+  const bridge = msg => window.webkit?.messageHandlers?.bot?.postMessage(msg);
   const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
+  let waiting = 0, moved = 0, preview = false, lastError = '', projects = new Set(), clickOpens = false;
 
-  function card(file, destHtml, tag, tagClass = '') {
-    const el = document.createElement('div');
-    el.className = 'item';
-    el.innerHTML = `<div class="file"></div><div class="dest"><span class="tag ${tagClass}">${tag}</span><span class="d"></span></div>`;
-    el.querySelector('.file').textContent = file;
-    el.querySelector('.d').textContent = destHtml;
-    $('results').prepend(el);
+  function status(text, kind = '') {
+    $('status').textContent = text;
+    $('status').className = 'status' + (kind ? ' ' + kind : '');
   }
+  function badge(n) {
+    $('badge').textContent = n > 99 ? '99+' : n;
+    $('badge').classList.toggle('show', n > 0);
+  }
+  function setClickOpens(on) { clickOpens = on; $('text').classList.toggle('clickable', on); }
 
-  // Called by the app with each line the organiser prints.
-  window.onLine = (line) => {
-    if (line.startsWith('WAITING\t')) { waiting.push(line.slice(8)); return; }
-    if (line.startsWith('Skipping')) { card(line.replace(/^Skipping ~\//, '').split(':')[0], 'macOS blocked this folder', 'blocked', 'err'); return; }
+  // Called by the app for each line the organiser prints.
+  window.onLine = line => {
+    if (line.startsWith('WAITING\t')) { waiting++; return; }
+    if (line.startsWith('Skipping')) { lastError = 'macOS blocked a folder — allow access in Settings'; return; }
     const m = line.match(/^(.*?)\s+->\s+(.*)$/);
-    if (!m) { if (line.trim()) errorText = line.trim(); return; }
+    if (!m) { if (line.trim()) lastError = line.trim(); return; }
     moved++;
     const file = m[1].split('/').pop();
-    const dest = m[2].replace(/^2026\//, '');
-    const parts = dest.split('/');
-    let tag = 'project', cls = '', where = dest;
-    if (dest.startsWith('_To_Review')) { tag = 'to review'; cls = 'review'; where = '2026 / _To_Review'; }
-    else if (m[2].startsWith('Personal')) { tag = 'personal'; cls = 'personal'; where = '~/Personal'; }
-    else if (m[2].startsWith('Installers')) { tag = 'installer'; cls = 'personal'; where = '~/Installers'; }
-    else { tag = parts[1] || 'project'; where = parts.slice(2, -1).join(' / ') + '  ·  ' + parts[0].replace('_', ' '); }
-    card(file, where, tag, cls);
-    say(mode === 'preview' ? `Would file ${plural(moved, 'thing')} so far…` : `Filed ${plural(moved, 'thing')} so far…`);
+    const parts = m[2].split('/');
+    const where = m[2].includes('_To_Review') ? 'To Review'
+      : m[2].startsWith('Personal') ? 'Personal'
+      : m[2].startsWith('Installers') ? 'Installers'
+      : (parts[2] || 'project');
+    projects.add(where);
+    status(`${preview ? 'Would file' : 'Filed'} ${file} → ${where}`);
+    if (!preview) badge(Math.max(waiting - moved, 0));
   };
 
   // Called by the app when the organiser exits.
   window.onDone = (kind, code) => {
     if (kind === 'list') {
-      $('results').innerHTML = '';
-      if (waiting.length) {
-        say(`${plural(waiting.length, 'new file')} waiting. Press Organise!`);
-        waiting.slice(0, 30).forEach(p => card(p.split('/').pop(), 'in ~/' + p.split('/')[0], 'waiting', 'review'));
-      } else {
-        say('All tidy! Nothing new to organise.');
-        $('results').innerHTML = '<div class="empty">Drop files in Downloads, Desktop or Documents and I\'ll sort them.</div>';
-      }
+      badge(waiting);
+      setClickOpens(false);
+      if (lastError) status(lastError, 'err');
+      else if (waiting) status(`${plural(waiting, 'new file')} waiting`);
+      else status('All tidy ✨', 'ok');
       return;
     }
-    $('go').disabled = false;
-    $('go').textContent = 'Organise!';
     document.body.classList.remove('working');
-    if (code !== 0) {
-      say('Oops, something went wrong.');
-      card('Organiser stopped', errorText || `exit code ${code}`, 'error', 'err');
-      return;
-    }
-    if (!moved) { say(mode === 'preview' ? 'Nothing new to file right now.' : 'All tidy! Nothing new to organise.'); return; }
-    say(mode === 'preview'
-      ? `That's my plan for ${plural(moved, 'file')}. Untick preview to do it.`
-      : `Done! I filed ${plural(moved, 'file')}. 🥕`);
-    if (mode !== 'preview') {
+    $('go').disabled = false;
+    $('go').textContent = 'Organise';
+    if (code !== 0) { status(lastError || 'Something went wrong', 'err'); return; }
+    if (!moved) { status('Nothing new to file', 'ok'); badge(0); return; }
+    const into = [...projects].slice(0, 2).join(', ') + (projects.size > 2 ? ` +${projects.size - 2}` : '');
+    if (preview) {
+      status(`Plan: ${plural(moved, 'file')} → ${into}`);
+    } else {
+      status(`Done! ${plural(moved, 'file')} → ${into} · open`, 'ok');
+      badge(0);
+      setClickOpens(true);
       document.body.classList.add('happy');
-      setTimeout(() => document.body.classList.remove('happy'), 1900);
+      setTimeout(() => document.body.classList.remove('happy'), 1700);
+      setTimeout(() => { setClickOpens(false); refresh(); }, 20000);
     }
   };
 
-  $('go').addEventListener('click', () => {
-    mode = $('preview').checked ? 'preview' : 'run';
-    moved = 0; errorText = '';
-    $('results').innerHTML = '';
+  $('go').addEventListener('click', e => {
+    preview = e.altKey;
+    moved = 0; lastError = ''; projects = new Set();
+    setClickOpens(false);
     $('go').disabled = true;
-    $('go').textContent = 'Sorting…';
+    $('go').textContent = preview ? 'Planning…' : 'Sorting…';
     document.body.classList.add('working');
-    say(mode === 'preview' ? 'Sniffing around to plan it out…' : 'Hopping through your folders… (about a minute)');
-    bridge({ action: 'organise', preview: mode === 'preview' });
+    status(preview ? 'Planning where things go…' : 'Hopping through your folders…');
+    bridge({ action: 'organise', preview });
   });
+  $('text').addEventListener('click', () => { if (clickOpens) bridge({ action: 'open' }); });
+  $('close').addEventListener('click', () => bridge({ action: 'hide' }));
 
-  $('open').addEventListener('click', () => bridge({ action: 'open' }));
-  $('bunny').addEventListener('click', () => {
-    if (document.body.classList.contains('working')) return;
-    const b = $('bunny'); b.classList.remove('wiggle'); void b.offsetWidth; b.classList.add('wiggle');
-    setTimeout(() => b.classList.remove('wiggle'), 500);
-  });
-
-  // Peek at what's waiting on launch (and whenever the window regains focus).
   window.refresh = () => {
-    if (document.body.classList.contains('working')) return;
-    waiting = []; bridge({ action: 'list' });
+    if (document.body.classList.contains('working') || clickOpens) return;
+    waiting = 0; lastError = '';
+    bridge({ action: 'list' });
   };
-  if (!window.webkit?.messageHandlers?.bot) say('Open me from the Bunny Organiser app.');
-  else refresh();
+  if (window.webkit?.messageHandlers?.bot) refresh(); else status('Open me from the app');
 </script>
 </body>
 </html>

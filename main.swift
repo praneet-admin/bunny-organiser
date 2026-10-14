@@ -1,39 +1,78 @@
 import Cocoa
 import WebKit
 
-// Bunny Organiser: a window with the Gengo bunny that runs ~/2026/_organize_new.py on demand.
+// Bunny Organiser: a notification-sized floating banner with the Gengo bunny that runs
+// ~/2026/_organize_new.py on demand.
 
 let home = FileManager.default.homeDirectoryForCurrentUser
 let script = home.appendingPathComponent("2026/_organize_new.py").path
+let bannerSize = NSSize(width: 360, height: 80)
+
+// Borderless panels can't become key by default; we need that for clicks and Option-click.
+final class Banner: NSPanel {
+    override var canBecomeKey: Bool { true }
+}
 
 final class Bot: NSObject, NSApplicationDelegate, WKScriptMessageHandler, NSWindowDelegate {
-    var window: NSWindow!
+    var window: Banner!
     var web: WKWebView!
     var running: Process?
+    var refreshTimer: Timer?
 
     func applicationDidFinishLaunching(_ note: Notification) {
         let config = WKWebViewConfiguration()
         config.userContentController.add(self, name: "bot")
-        web = WKWebView(frame: .zero, configuration: config)
+        web = WKWebView(frame: NSRect(origin: .zero, size: bannerSize), configuration: config)
         web.setValue(false, forKey: "drawsBackground")
+        web.autoresizingMask = [.width, .height]
 
-        window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 400, height: 660),
-                          styleMask: [.titled, .closable, .miniaturizable, .resizable],
-                          backing: .buffered, defer: false)
-        window.title = "Bunny Organiser"
-        window.minSize = NSSize(width: 360, height: 560)
-        window.contentView = web
+        // Frosted rounded card, like a macOS notification.
+        let blur = NSVisualEffectView(frame: NSRect(origin: .zero, size: bannerSize))
+        blur.material = .popover
+        blur.blendingMode = .behindWindow
+        blur.state = .active
+        blur.wantsLayer = true
+        blur.layer?.cornerRadius = 18
+        blur.layer?.masksToBounds = true
+        blur.addSubview(web)
+
+        window = Banner(contentRect: NSRect(origin: .zero, size: bannerSize),
+                        styleMask: [.borderless, .nonactivatingPanel],
+                        backing: .buffered, defer: false)
+        window.isOpaque = false
+        window.backgroundColor = .clear
+        window.hasShadow = true
+        window.level = .floating
+        window.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
+        window.isMovableByWindowBackground = true
+        window.contentView = blur
         window.delegate = self
-        window.center()
-        window.makeKeyAndOrderFront(nil)
+        placeTopRight()
+        window.orderFrontRegardless()
 
         let res = Bundle.main.resourceURL!
         web.loadFileURL(res.appendingPathComponent("index.html"), allowingReadAccessTo: res)
         buildMenu()
-        NSApp.activate(ignoringOtherApps: true)
+
+        // Keep the "N new files waiting" badge fresh. Listing is cheap (no Claude call).
+        refreshTimer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { [weak self] _ in
+            self?.web.evaluateJavaScript("window.refresh && window.refresh()")
+        }
     }
 
-    func applicationShouldTerminateAfterLastWindowClosed(_ app: NSApplication) -> Bool { true }
+    func placeTopRight() {
+        guard let screen = NSScreen.main else { return }
+        let f = screen.visibleFrame
+        window.setFrameOrigin(NSPoint(x: f.maxX - bannerSize.width - 16, y: f.maxY - bannerSize.height - 12))
+    }
+
+    // Clicking the Dock icon brings the banner back after it was hidden.
+    func applicationShouldHandleReopen(_ app: NSApplication, hasVisibleWindows: Bool) -> Bool {
+        placeTopRight()
+        window.orderFrontRegardless()
+        web.evaluateJavaScript("window.refresh && window.refresh()")
+        return true
+    }
 
     func windowDidBecomeKey(_ note: Notification) {
         web.evaluateJavaScript("window.refresh && window.refresh()")
@@ -44,6 +83,8 @@ final class Bot: NSObject, NSApplicationDelegate, WKScriptMessageHandler, NSWind
         switch action {
         case "open":
             NSWorkspace.shared.open(home.appendingPathComponent("2026"))
+        case "hide":
+            window.orderOut(nil)
         case "list":
             run(["--list"], kind: "list")
         case "organise":
@@ -110,11 +151,6 @@ final class Bot: NSObject, NSApplicationDelegate, WKScriptMessageHandler, NSWind
         let appMenu = NSMenu()
         appMenu.addItem(withTitle: "Quit Bunny Organiser", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         appItem.submenu = appMenu
-        let editItem = NSMenuItem()
-        main.addItem(editItem)
-        let edit = NSMenu(title: "Edit")
-        edit.addItem(withTitle: "Copy", action: #selector(NSText.copy(_:)), keyEquivalent: "c")
-        editItem.submenu = edit
         NSApp.mainMenu = main
     }
 }
