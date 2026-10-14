@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Bunny Organiser</title>
+<style>
+  :root {
+    --brand-900: #23155c; --brand-700: #5330d6; --brand-600: #6a48f2; --brand-500: #8466ff;
+    --brand-100: #e6e0ff; --brand-050: #f1edff;
+    --accent-600: #f2b705; --accent-500: #ffd233; --accent-100: #fff6c7;
+    --mint-500: #2fe3a5; --mint-100: #d9fbef;
+    --danger-600: #c9245a; --danger-100: #ffe1ec;
+    --ink-900: #1b1638; --ink-700: #3f3866; --ink-500: #6f6894;
+    --bg: #f6f3ff; --card: #ffffff; --line: #ddd5fb;
+    --font: "Nunito", ui-rounded, "Avenir Next Rounded", "Avenir Next", system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink-900: #f1edff; --ink-700: #d6cff5; --ink-500: #a69fcc;
+      --bg: #17122e; --card: #221a45; --line: #3a2f6b; --brand-050: #2a2055; --brand-100: #352a6b;
+      --mint-100: #163d33; --danger-100: #4a1a2c; --accent-100: #4a3c0d;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    font-family: var(--font); color: var(--ink-900); background: var(--bg);
+    display: flex; flex-direction: column; align-items: center;
+    padding: 18px 20px 20px; user-select: none; -webkit-user-select: none; overflow: hidden;
+  }
+
+  /* ---------- the bunny ---------- */
+  .stage { position: relative; width: 210px; height: 210px; margin-top: 4px; }
+  .shadow {
+    position: absolute; left: 50%; bottom: 6px; width: 120px; height: 16px; margin-left: -60px;
+    border-radius: 50%; background: rgba(35, 21, 92, .16); animation: shadow 3s ease-in-out infinite;
+  }
+  .bunny {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    transform-origin: 50% 90%; animation: breathe 3s ease-in-out infinite;
+    cursor: pointer; -webkit-user-drag: none;
+  }
+  @keyframes breathe { 0%,100% { transform: translateY(0) scale(1, 1); } 50% { transform: translateY(-5px) scale(1.01, .99); } }
+  @keyframes shadow { 0%,100% { transform: scaleX(1); opacity: 1; } 50% { transform: scaleX(.88); opacity: .75; } }
+
+  body.working .bunny { animation: hop .55s cubic-bezier(.3,.0,.4,1) infinite; }
+  body.working .shadow { animation: hopShadow .55s cubic-bezier(.3,.0,.4,1) infinite; }
+  @keyframes hop {
+    0%   { transform: translateY(0) scale(1.06, .92); }
+    35%  { transform: translateY(-26px) scale(.96, 1.05) rotate(-3deg); }
+    65%  { transform: translateY(-26px) scale(.96, 1.05) rotate(3deg); }
+    100% { transform: translateY(0) scale(1.06, .92); }
+  }
+  @keyframes hopShadow { 0%,100% { transform: scaleX(1); } 50% { transform: scaleX(.6); opacity: .5; } }
+
+  body.happy .bunny { animation: cheer .9s ease-out 2; }
+  @keyframes cheer {
+    0% { transform: translateY(0) rotate(0); } 30% { transform: translateY(-34px) rotate(-8deg); }
+    60% { transform: translateY(-34px) rotate(8deg); } 100% { transform: translateY(0) rotate(0); }
+  }
+  .bunny.wiggle { animation: wiggle .5s ease-in-out; }
+  @keyframes wiggle { 0%,100% { transform: rotate(0); } 25% { transform: rotate(-6deg); } 75% { transform: rotate(6deg); } }
+
+  .bubble {
+    position: relative; max-width: 330px; margin-top: 6px; padding: 10px 16px;
+    background: var(--card); border: 2px solid var(--line); border-radius: 18px;
+    font-weight: 700; font-size: 15px; text-align: center; color: var(--ink-700);
+    box-shadow: 0 6px 18px rgba(35, 21, 92, .08);
+  }
+  .bubble::before {
+    content: ""; position: absolute; top: -9px; left: 50%; margin-left: -8px; width: 14px; height: 14px;
+    background: var(--card); border-left: 2px solid var(--line); border-top: 2px solid var(--line); transform: rotate(45deg);
+  }
+
+  /* ---------- controls ---------- */
+  .go {
+    margin-top: 16px; width: 100%; max-width: 330px; padding: 15px 20px;
+    font: 900 19px var(--font); letter-spacing: .02em; color: var(--brand-900);
+    background: var(--accent-500); border: none; border-radius: 18px; cursor: pointer;
+    box-shadow: 0 5px 0 var(--accent-600); transition: transform .08s, box-shadow .08s, filter .15s;
+  }
+  .go:hover { filter: brightness(1.04); }
+  .go:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--accent-600); }
+  .go:disabled { cursor: progress; filter: saturate(.4); transform: translateY(4px); box-shadow: 0 1px 0 var(--accent-600); }
+  .go:focus-visible { outline: 3px solid var(--brand-500); outline-offset: 3px; }
+
+  .row { display: flex; gap: 10px; align-items: center; justify-content: space-between; width: 100%; max-width: 330px; margin-top: 12px; }
+  .toggle { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: var(--ink-500); cursor: pointer; }
+  .toggle input { width: 16px; height: 16px; accent-color: var(--brand-600); }
+  .link {
+    font: 700 14px var(--font); color: var(--brand-600); background: none; border: none; cursor: pointer; padding: 4px 2px;
+  }
+  @media (prefers-color-scheme: dark) { .link { color: var(--brand-500); } }
+  .link:hover { text-decoration: underline; }
+
+  /* ---------- results ---------- */
+  .results {
+    flex: 1; width: 100%; max-width: 330px; margin-top: 14px; overflow-y: auto;
+    display: flex; flex-direction: column; gap: 8px; padding-bottom: 4px;
+  }
+  .item {
+    background: var(--card); border: 1.5px solid var(--line); border-radius: 14px; padding: 9px 12px;
+    animation: pop .25s ease-out both;
+  }
+  @keyframes pop { from { opacity: 0; transform: translateY(6px) scale(.98); } to { opacity: 1; transform: none; } }
+  .file { font-weight: 800; font-size: 13.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .dest { font-size: 12.5px; color: var(--ink-500); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tag {
+    display: inline-block; font-size: 11px; font-weight: 800; padding: 1px 8px; border-radius: 999px; margin-right: 6px;
+    background: var(--brand-050); color: var(--brand-700);
+  }
+  @media (prefers-color-scheme: dark) { .tag { color: var(--brand-100); background: var(--brand-700); } }
+  .tag.review { background: var(--accent-100); color: #8a6400; }
+  .tag.personal { background: var(--mint-100); color: #127a57; }
+  .tag.err { background: var(--danger-100); color: var(--danger-600); }
+  .empty { text-align: center; color: var(--ink-500); font-size: 13.5px; margin-top: 8px; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="shadow"></div>
+    <img class="bunny" id="bunny" src="mascot.png" alt="Gengo bunny">
+  </div>
+  <div class="bubble" id="say">Hi! Let me peek at your folders…</div>
+
+  <button class="go" id="go">Organise!</button>
+  <div class="row">
+    <label class="toggle"><input type="checkbox" id="preview"> Just preview</label>
+    <button class="link" id="open">Open 2026 folder ↗</button>
+  </div>
+
+  <div class="results" id="results"></div>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const bridge = (msg) => window.webkit?.messageHandlers?.bot?.postMessage(msg);
+  let waiting = [], moved = 0, mode = 'idle', errorText = '';
+
+  const say = t => { $('say').textContent = t; };
+  const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
+
+  function card(file, destHtml, tag, tagClass = '') {
+    const el = document.createElement('div');
+    el.className = 'item';
+    el.innerHTML = `<div class="file"></div><div class="dest"><span class="tag ${tagClass}">${tag}</span><span class="d"></span></div>`;
+    el.querySelector('.file').textContent = file;
+    el.querySelector('.d').textContent = destHtml;
+    $('results').prepend(el);
+  }
+
+  // Called by the app with each line the organiser prints.
+  window.onLine = (line) => {
+    if (line.startsWith('WAITING\t')) { waiting.push(line.slice(8)); return; }
+    if (line.startsWith('Skipping')) { card(line.replace(/^Skipping ~\//, '').split(':')[0], 'macOS blocked this folder', 'blocked', 'err'); return; }
+    const m = line.match(/^(.*?)\s+->\s+(.*)$/);
+    if (!m) { if (line.trim()) errorText = line.trim(); return; }
+    moved++;
+    const file = m[1].split('/').pop();
+    const dest = m[2].replace(/^2026\//, '');
+    const parts = dest.split('/');
+    let tag = 'project', cls = '', where = dest;
+    if (dest.startsWith('_To_Review')) { tag = 'to review'; cls = 'review'; where = '2026 / _To_Review'; }
+    else if (m[2].startsWith('Personal')) { tag = 'personal'; cls = 'personal'; where = '~/Personal'; }
+    else if (m[2].startsWith('Installers')) { tag = 'installer'; cls = 'personal'; where = '~/Installers'; }
+    else { tag = parts[1] || 'project'; where = parts.slice(2, -1).join(' / ') + '  ·  ' + parts[0].replace('_', ' '); }
+    card(file, where, tag, cls);
+    say(mode === 'preview' ? `Would file ${plural(moved, 'thing')} so far…` : `Filed ${plural(moved, 'thing')} so far…`);
+  };
+
+  // Called by the app when the organiser exits.
+  window.onDone = (kind, code) => {
+    if (kind === 'list') {
+      $('results').innerHTML = '';
+      if (waiting.length) {
+        say(`${plural(waiting.length, 'new file')} waiting. Press Organise!`);
+        waiting.slice(0, 30).forEach(p => card(p.split('/').pop(), 'in ~/' + p.split('/')[0], 'waiting', 'review'));
+      } else {
+        say('All tidy! Nothing new to organise.');
+        $('results').innerHTML = '<div class="empty">Drop files in Downloads, Desktop or Documents and I\'ll sort them.</div>';
+      }
+      return;
+    }
+    $('go').disabled = false;
+    $('go').textContent = 'Organise!';
+    document.body.classList.remove('working');
+    if (code !== 0) {
+      say('Oops, something went wrong.');
+      card('Organiser stopped', errorText || `exit code ${code}`, 'error', 'err');
+      return;
+    }
+    if (!moved) { say(mode === 'preview' ? 'Nothing new to file right now.' : 'All tidy! Nothing new to organise.'); return; }
+    say(mode === 'preview'
+      ? `That's my plan for ${plural(moved, 'file')}. Untick preview to do it.`
+      : `Done! I filed ${plural(moved, 'file')}. 🥕`);
+    if (mode !== 'preview') {
+      document.body.classList.add('happy');
+      setTimeout(() => document.body.classList.remove('happy'), 1900);
+    }
+  };
+
+  $('go').addEventListener('click', () => {
+    mode = $('preview').checked ? 'preview' : 'run';
+    moved = 0; errorText = '';
+    $('results').innerHTML = '';
+    $('go').disabled = true;
+    $('go').textContent = 'Sorting…';
+    document.body.classList.add('working');
+    say(mode === 'preview' ? 'Sniffing around to plan it out…' : 'Hopping through your folders… (about a minute)');
+    bridge({ action: 'organise', preview: mode === 'preview' });
+  });
+
+  $('open').addEventListener('click', () => bridge({ action: 'open' }));
+  $('bunny').addEventListener('click', () => {
+    if (document.body.classList.contains('working')) return;
+    const b = $('bunny'); b.classList.remove('wiggle'); void b.offsetWidth; b.classList.add('wiggle');
+    setTimeout(() => b.classList.remove('wiggle'), 500);
+  });
+
+  // Peek at what's waiting on launch (and whenever the window regains focus).
+  window.refresh = () => {
+    if (document.body.classList.contains('working')) return;
+    waiting = []; bridge({ action: 'list' });
+  };
+  if (!window.webkit?.messageHandlers?.bot) say('Open me from the Bunny Organiser app.');
+  else refresh();
+</script>
+</body>
+</html>
