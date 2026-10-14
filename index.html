@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Bunny Organiser</title>
+<title>Mr. Box</title>
 <style>
   :root {
     --brand-900: #23155c; --brand-700: #5330d6; --brand-600: #6a48f2; --brand-500: #8466ff;
@@ -22,24 +22,24 @@
     user-select: none; -webkit-user-select: none; cursor: default;
   }
 
-  /* ---------- bunny ---------- */
-  .bunny-wrap { position: relative; flex: none; width: 60px; height: 60px; }
-  .bunny {
+  /* ---------- Mr. Box ---------- */
+  .mascot-wrap { position: relative; flex: none; width: 60px; height: 60px; }
+  .mascot {
     width: 100%; height: 100%; -webkit-user-drag: none;
     transform-origin: 50% 90%; animation: breathe 3s ease-in-out infinite;
   }
   @keyframes breathe { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
-  body.working .bunny { animation: hop .5s cubic-bezier(.3,0,.4,1) infinite; }
+  body.working .mascot { animation: hop .5s cubic-bezier(.3,0,.4,1) infinite; }
   @keyframes hop {
     0%,100% { transform: translateY(0) scale(1.05, .94); }
     40%     { transform: translateY(-7px) scale(.97, 1.04) rotate(-4deg); }
     65%     { transform: translateY(-7px) scale(.97, 1.04) rotate(4deg); }
   }
-  body.happy .bunny { animation: cheer .8s ease-out 2; }
+  body.happy .mascot { animation: cheer .8s ease-out 2; }
   @keyframes cheer { 0%,100% { transform: none; } 35% { transform: translateY(-9px) rotate(-10deg); } 70% { transform: translateY(-9px) rotate(10deg); } }
   .badge {
     position: absolute; top: 0; right: -2px; min-width: 19px; height: 19px; padding: 0 5px;
-    border-radius: 999px; background: var(--brand-600); color: #fff;
+    border-radius: 999px; background: #3a78e0; color: #fff;
     font: 900 11px/19px var(--font); text-align: center;
     box-shadow: 0 0 0 2px rgba(255,255,255,.85); display: none;
   }
@@ -82,12 +82,12 @@
 </head>
 <body>
   <button class="close" id="close" title="Hide (reopen from the Dock)">×</button>
-  <div class="bunny-wrap">
-    <img class="bunny" src="mascot.png" alt="Gengo bunny">
+  <div class="mascot-wrap">
+    <img class="mascot" src="mrbox.png" alt="Mr. Box">
     <span class="badge" id="badge"></span>
   </div>
   <div class="text" id="text">
-    <div class="title">Bunny Organiser</div>
+    <div class="title">Mr. Box</div>
     <div class="status" id="status">Peeking at your folders…</div>
   </div>
   <button class="go" id="go" title="Option-click to preview without moving">Organise</button>
@@ -161,7 +161,7 @@
     $('go').disabled = true;
     $('go').textContent = preview ? 'Planning…' : 'Sorting…';
     document.body.classList.add('working');
-    status(preview ? 'Planning where things go…' : 'Hopping through your folders…');
+    status(preview ? 'Planning where things go…' : 'Tidying up your folders…');
     bridge({ action: 'organise', preview });
   });
   $('text').addEventListener('click', () => { if (clickOpens) bridge({ action: 'open' }); });

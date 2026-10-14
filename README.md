@@ -1,10 +1,10 @@
-# Bunny Organiser 🐰🥕
+# Mr. Box 📦
 
-A notification-sized Mac app that keeps your design-school files tidy. Press **Organise!** and the Gengo bunny hops through
+A notification-sized Mac assistant that keeps your design-school files tidy. Press **Organise** and Mr. Box tidies up
 `~/Downloads`, `~/Desktop` and `~/Documents`, works out which project each new file belongs to (using the
 `claude` CLI), and files it into a dated project template.
 
-<img src="docs/screenshot.png" alt="Bunny Organiser banner" width="450">
+<img src="docs/screenshot.png" alt="Mr. Box banner" width="450">
 
 ## The folder template
 
@@ -31,7 +31,7 @@ A notification-sized Mac app that keeps your design-school files tidy. Press **O
 
 | | |
 |---|---|
-| **Organise!** | Sort everything that's waiting |
+| **Organise** | Sort everything that's waiting |
 | **Option-click Organise** | Preview where files *would* go without moving anything |
 | **Click the status after a run** | Open the organised folders in Finder |
 
@@ -51,7 +51,7 @@ Needs macOS 12+, the Xcode command-line tools (`swiftc`) and the [Claude Code CL
 logged in at `~/.local/bin/claude`.
 
 ```bash
-./build.sh   # builds ~/Applications/Bunny Organiser.app
+./build.sh   # builds ~/Applications/Mr Box.app
 ```
 
 The app expects the organiser at `~/2026/_organize_new.py`. Link it once:
@@ -65,7 +65,7 @@ mkdir -p ~/2026 && ln -sf "$PWD/organize.py" ~/2026/_organize_new.py
 | File | What it is |
 |---|---|
 | `main.swift` | Native window (WKWebView) that runs the organiser and streams its output |
-| `index.html` | The bunny UI, in Gengo's colours |
+| `index.html` | The banner UI |
 | `organize.py` | Finds new files, asks `claude -p` to classify them, moves them |
 | `undo_moves.sh` | Reverses every logged move |
 | `build.sh` | Compiles, adds the icon and Info.plist, ad-hoc signs |

@@ -1,7 +1,7 @@
 import Cocoa
 import WebKit
 
-// Bunny Organiser: a notification-sized floating banner with the Gengo bunny that runs
+// Mr. Box: a notification-sized floating banner with a tidy-box mascot that runs
 // ~/2026/_organize_new.py on demand.
 
 let home = FileManager.default.homeDirectoryForCurrentUser
@@ -149,7 +149,7 @@ final class Bot: NSObject, NSApplicationDelegate, WKScriptMessageHandler, NSWind
         let appItem = NSMenuItem()
         main.addItem(appItem)
         let appMenu = NSMenu()
-        appMenu.addItem(withTitle: "Quit Bunny Organiser", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        appMenu.addItem(withTitle: "Quit Mr. Box", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         appItem.submenu = appMenu
         NSApp.mainMenu = main
     }
