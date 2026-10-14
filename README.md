@@ -8,12 +8,31 @@ A notification-sized Mac assistant that keeps your design-school files tidy. Pre
 
 ## Download
 
+### Easiest: one command (no security warning)
+
+Open **Terminal** (⌘ Space → type *Terminal*), paste this, and press Return:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/praneet-admin/mr-box/main/install.sh | bash
+```
+
+It downloads the latest Mr. Box into Applications and opens it. Mr. Box appears in the top-right corner;
+click **Allow** when he asks to see Downloads, Desktop and Documents.
+
+### Or download the app
+
 **[⬇️ Download Mr. Box for Mac](https://github.com/praneet-admin/mr-box/releases/latest/download/Mr-Box-macOS.zip)** (1.5 MB, macOS 12 or later)
 
-1. Open the downloaded zip and drag **Mr Box** into your **Applications** folder.
-2. Double-click it. macOS will warn that it's from an unidentified developer (it isn't notarised yet).
-   Go to **System Settings → Privacy & Security**, scroll down, and click **Open Anyway**. You only do this once.
-3. Mr. Box appears in the top-right corner. Click **Allow** when he asks to see Downloads, Desktop and Documents.
+macOS will say *"Apple could not verify 'Mr Box' is free of malware"*. That's the standard message for any app
+that isn't notarised through Apple's paid developer program, not a sign that something is wrong. To open it:
+
+1. Open the zip and drag **Mr Box** into **Applications**.
+2. Double-click it, click **Done** on the warning.
+3. Go to **System Settings → Privacy & Security**, scroll down, click **Open Anyway**, and confirm. Only needed once.
+
+Or clear the warning from Terminal: `xattr -dr com.apple.quarantine "/Applications/Mr Box.app"`
+
+### What you need
 
 **Search** works straight away. **Organise** also needs the [Claude Code CLI](https://claude.com/claude-code)
 installed and logged in, because Claude decides which project each file belongs to.
@@ -85,3 +104,4 @@ mkdir -p ~/2026 && ln -sf "$PWD/organize.py" ~/2026/_organize_new.py
 | `organize.py` | Finds new files, asks `claude -p` to classify them, moves them |
 | `undo_moves.sh` | Reverses every logged move |
 | `build.sh` | Compiles, adds the icon and Info.plist, ad-hoc signs |
+| `install.sh` | One-command installer for other Macs |
