@@ -83,8 +83,8 @@ final class Bot: NSObject, NSApplicationDelegate, WKScriptMessageHandler, NSWind
         switch action {
         case "open":
             NSWorkspace.shared.open(home.appendingPathComponent("2026"))
-        case "hide":
-            window.orderOut(nil)
+        case "quit":
+            NSApp.terminate(nil)
         case "expand":
             setExpanded(body["open"] as? Bool ?? false)
         case "search":
