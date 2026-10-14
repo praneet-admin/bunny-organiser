@@ -6,6 +6,18 @@ A notification-sized Mac assistant that keeps your design-school files tidy. Pre
 
 <img src="docs/screenshot.png" alt="Mr. Box banner" width="450">
 
+## Download
+
+**[⬇️ Download Mr. Box for Mac](https://github.com/praneet-admin/mr-box/releases/latest/download/Mr-Box-macOS.zip)** (1.5 MB, macOS 12 or later)
+
+1. Open the downloaded zip and drag **Mr Box** into your **Applications** folder.
+2. Double-click it. macOS will warn that it's from an unidentified developer (it isn't notarised yet).
+   Go to **System Settings → Privacy & Security**, scroll down, and click **Open Anyway**. You only do this once.
+3. Mr. Box appears in the top-right corner. Click **Allow** when he asks to see Downloads, Desktop and Documents.
+
+**Search** works straight away. **Organise** also needs the [Claude Code CLI](https://claude.com/claude-code)
+installed and logged in, because Claude decides which project each file belongs to.
+
 ## The folder template
 
 ```

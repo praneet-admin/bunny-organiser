@@ -8,7 +8,8 @@ import calendar, datetime, json, os, shutil, subprocess, sys, time
 
 H = os.path.expanduser('~')
 ROOT = os.path.join(H, '2026')
-CLAUDE = os.path.join(H, '.local/bin/claude')
+CLAUDE = next((c for c in [os.path.join(H, '.local/bin/claude'), '/opt/homebrew/bin/claude', '/usr/local/bin/claude',
+                           shutil.which('claude') or ''] if c and os.path.exists(c)), None)
 WATCH = ['Downloads', 'Desktop', 'Documents']
 KEEP = {'Documents/Codex', 'Documents/Adobe'}                      # never touched
 PARTIAL = ('.crdownload', '.download', '.part', '.tmp')
@@ -44,6 +45,8 @@ def candidates():
     for base in WATCH:
         try:
             names = sorted(os.listdir(os.path.join(H, base)))
+        except FileNotFoundError:
+            continue
         except PermissionError:
             print(f'Skipping ~/{base}: macOS blocked access (System Settings > Privacy & Security > Files and Folders)')
             continue
@@ -89,6 +92,7 @@ Input TSV (path, kind, modified):
 
 
 def main():
+    os.makedirs(ROOT, exist_ok=True)
     items = list(candidates())
     if '--list' in sys.argv:
         for i in items:
@@ -96,6 +100,9 @@ def main():
         return
     if not items:
         return
+    if not CLAUDE:
+        print('Claude Code CLI not found. Install it from https://claude.com/claude-code and log in.')
+        sys.exit(1)
     projects = existing_projects()
     plan = classify(items, projects)
     valid = {i[0] for i in items}

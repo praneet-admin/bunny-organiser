@@ -5,7 +5,10 @@ import WebKit
 // ~/2026/_organize_new.py on demand.
 
 let home = FileManager.default.homeDirectoryForCurrentUser
-let script = home.appendingPathComponent("2026/_organize_new.py").path
+// Use the linked dev copy in ~/2026 if there is one, otherwise the copy bundled inside the app.
+let localScript = home.appendingPathComponent("2026/_organize_new.py").path
+let script = FileManager.default.fileExists(atPath: localScript)
+    ? localScript : Bundle.main.resourceURL!.appendingPathComponent("organize.py").path
 let bannerSize = NSSize(width: 360, height: 80)
 
 // Borderless panels can't become key by default; we need that for clicks and Option-click.

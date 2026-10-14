@@ -7,7 +7,7 @@ rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 
 swiftc -O main.swift -o "$APP/Contents/MacOS/MrBox" -framework Cocoa -framework WebKit
-cp index.html mrbox.png "$APP/Contents/Resources/"
+cp index.html mrbox.png organize.py "$APP/Contents/Resources/"
 
 # App icon from Mr. Box
 ICONSET=$(mktemp -d)/AppIcon.iconset; mkdir -p "$ICONSET"
