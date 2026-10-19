@@ -41,7 +41,11 @@ def existing_projects():
 
 def versions_summary(path):
     wf = os.path.join(path, '04_Working_Files')
-    used = [v for v in sorted(os.listdir(wf)) if os.listdir(os.path.join(wf, v))] if os.path.isdir(wf) else []
+    if not os.path.isdir(wf):
+        return 'none'
+    # Finder drops hidden files like .DS_Store in here; only V01..V05 folders count.
+    used = [v for v in sorted(os.listdir(wf))
+            if not v.startswith('.') and os.path.isdir(os.path.join(wf, v)) and os.listdir(os.path.join(wf, v))]
     return ','.join(used) or 'none'
 
 
